@@ -1,0 +1,51 @@
+{
+  "name": "Proxer",
+  "description": "Discord Rich Presence for Proxer.me",
+  "main": "index.js",
+  "scripts": {
+    "start": "electron .",
+    "dist:mac": "build -m --publish always",
+    "dist:linux": "build -l --publish always",
+    "dist:win": "build -w --publish always"
+  },
+  "keywords": [
+    "discord",
+    "rich",
+    "presence",
+    "proxer"
+  ],
+  "author": "Pat",
+  "license": "ISC",
+  "build": {
+    "appId": "com.proxer.pat",
+    "win": {
+      "target": "nsis-web",
+      "icon": "./assets/icon.png"
+    },
+    "linux": {
+      "target": "AppImage",
+      "icon": "./assets/icon.png"
+    },
+    "mac": {
+      "target": "dmg",
+      "icon": "./assets/icon.png"
+    }
+  },
+  "dependencies": {
+    "axios": "^0.19.0",
+    "cheerio": "^1.0.0-rc.3",
+    "discord-rich-presence": "0.0.8",
+    "discord-rpc": "^3.0.1",
+    "electron-navigation": "^1.5.8",
+    "jquery": "^3.3.1",
+    "moment": "^2.22.2",
+    "puppeteer": "^1.19.0",
+    "setimmediate": "^1.0.5",
+    "socket.io-client": "^2.2.0"
+  },
+  "devDependencies": {
+    "electron": "^3.0.9",
+    "electron-builder": "^19.56.2",
+    "register-scheme": "0.0.2"
+  }
+}
