@@ -4,9 +4,7 @@
   "main": "index.js",
   "scripts": {
     "start": "electron .",
-    "dist:mac": "build -m --publish always",
-    "dist:linux": "build -l --publish always",
-    "dist:win": "build -w --publish always"
+    "buildall": "electron-packager . --all"
   },
   "keywords": [
     "discord",
@@ -15,7 +13,6 @@
     "proxer"
   ],
   "author": "Pat",
-  "license": "ISC",
   "build": {
     "appId": "com.proxer.pat",
     "win": {
@@ -36,16 +33,23 @@
     "cheerio": "^1.0.0-rc.3",
     "discord-rich-presence": "0.0.8",
     "discord-rpc": "^3.0.1",
+    "electron": "^3.1.13",
+    "electron-builder": "^19.56.2",
     "electron-navigation": "^1.5.8",
+    "electron-squirrel-startup": "^1.0.0",
+    "electron-winstaller": "^4.0.0",
     "jquery": "^3.3.1",
     "moment": "^2.22.2",
+    "node-gyp": "^5.0.3",
     "puppeteer": "^1.19.0",
+    "register-scheme": "0.0.2",
     "setimmediate": "^1.0.5",
     "socket.io-client": "^2.2.0"
   },
   "devDependencies": {
     "electron": "^3.1.13",
     "electron-builder": "^19.56.2",
+    "electron-winstaller": "^4.0.0",
     "register-scheme": "0.0.2"
   }
 }

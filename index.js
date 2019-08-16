@@ -18,6 +18,7 @@ function main() {
   win = new BrowserWindow({
     width: 800,
     height: 600,
+    icon: "assets/icon.png",
     webPreferences: {
       nodeIntegration: true
     }
@@ -45,12 +46,15 @@ function main() {
 
   client.updatePresence({
     state: 'Browsing Proxer.me',
-    details: '',
+    details: 'Idle',
     largeImageKey: 'logo',
     instance: true,
+    fullscreen: true,
+    autoHideMenuBar: true,
   });
 
   setInterval(checkPage, 2000);
+  win.on('close', function() {process.exit()});
 }
 
 function checkPage() {
@@ -61,10 +65,21 @@ function checkPage() {
     //literally nothing
   } else {
     currentURL = newURL;
+    win.setMenuBarVisibility(true);
+
+    client.updatePresence({
+      state: 'Browsing Proxer.me',
+      details: 'Idle',
+      largeImageKey: 'logo',
+      instance: true,
+      fullscreen: true,
+      autoHideMenuBar: true,
+    });
 
     if (currentURL.includes("watch") == true) {
       axios(currentURL)
         .then(response => {
+          win.setMenuBarVisibility(false);
           const html = response.data;
           const $ = cheerio.load(html)
           const table = $('body');
@@ -146,6 +161,7 @@ function checkPage() {
         instance: true,
       });
     }
+
 
   }
 }
