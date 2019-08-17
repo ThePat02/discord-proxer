@@ -5,16 +5,33 @@ const {
 } = require('electron');
 const client = require('discord-rich-presence')('611913662415896627');
 
+//Base URL array
 const urls = ["https://proxer.me", "https://proxer.me/watch/4167/1/engsub"];
+//Setting URL
+var currentURL = urls[0];
+
 
 const axios = require('axios');
 const cheerio = require('cheerio');
 
-var currentURL = "proxer.me";
-
 let win;
 
+//Creating template for electron menu
+const template = [{
+  label: 'Navigation',
+  submenu: [{
+    label: 'Backwards',
+    accelerator: 'CmdOrCtrl+B',
+    click() {
+      console.log('<-')
+      win.webContents.goBack();
+    }
+  }]
+}];
+
+//Main function (called on "ready")
 function main() {
+  //Defining electron window
   win = new BrowserWindow({
     width: 800,
     height: 600,
@@ -25,44 +42,35 @@ function main() {
   })
 
   let contents = win.webContents;
-  console.log(contents);
-
-  const template = [{
-    label: 'Navigation',
-    submenu: [{
-      label: 'Backwards',
-      accelerator: 'CmdOrCtrl+B',
-      click() {
-        console.log('<-')
-        win.webContents.goBack();
-      }
-    }]
-  }];
 
   Menu.setApplicationMenu(Menu.buildFromTemplate(template));
   win.maximize();
+  win.loadURL(currentURL);
 
-  win.loadURL(urls[0]);
-
+  //Inital rich presence
   client.updatePresence({
     state: 'Browsing Proxer.me',
     details: 'Idle',
     largeImageKey: 'logo',
     instance: true,
-    fullscreen: true,
-    autoHideMenuBar: true,
   });
 
+  //Setting interval to refresh rich presence
   setInterval(checkPage, 2000);
-  win.on('close', function() {process.exit()});
+
+  //Exit the process after closing the electron window
+  win.on('close', function() {
+    process.exit()
+  });
 }
 
+//Called every X seconds to check if the page has changed
 function checkPage() {
 
   var newURL = win.webContents.getURL();
 
   if (currentURL == newURL) {
-    //literally nothing
+    //literally nothing happens
   } else {
     currentURL = newURL;
     win.setMenuBarVisibility(true);
@@ -165,7 +173,5 @@ function checkPage() {
 
   }
 }
-
-
 
 app.on('ready', main);
