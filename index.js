@@ -9,6 +9,7 @@ const client = require('discord-rich-presence')('611913662415896627');
 const urls = ["https://proxer.me", "https://proxer.me/watch/4167/1/engsub"];
 //Setting URL
 var currentURL = urls[0];
+var changelogURL = "https://rawcdn.githack.com/ThePat02/discord-proxer/b5be615e00e60b5f95913294e07c88069e5905d9/changelog.txt";
 
 
 const axios = require('axios');
@@ -57,6 +58,8 @@ function main() {
 
   //Setting interval to refresh rich presence
   setInterval(checkPage, 2000);
+
+  checkUpdates();
 
   //Exit the process after closing the electron window
   win.on('close', function() {
@@ -173,5 +176,48 @@ function checkPage() {
 
   }
 }
+
+//Called upon startup to check if the changelog.txt file on the repo has changed
+/*
+function checkUpdates() {
+  axios(changelogURL)
+    .then(response => {
+      const html = response.data;
+      const $ = cheerio.load(html)
+      const table = $('html');
+      const info = [];
+
+      table.each(function() {
+        const content = $(this).text();
+
+      var fs = require('fs');
+      var data = "";
+
+      try {
+         data = fs.readFileSync('changelog.txt', 'utf8');
+        //console.log(data.toString());
+      } catch (e) {
+        console.log('Error:', e.stack);
+      }
+
+      console.log(data.toString());
+      console.log(content.toString());
+
+      if (data != content)
+      {
+        console.log("New");
+      }
+
+          info.push({
+            content,
+          });
+      });
+
+
+    });
+
+}
+
+*/
 
 app.on('ready', main);
