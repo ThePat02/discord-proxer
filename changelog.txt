@@ -1,0 +1,3 @@
+v1.0.1 - 17.08.19
+- Changed code structure and added comments
+- Added a way to check for updates upon startup
