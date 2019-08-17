@@ -59,7 +59,7 @@ function main() {
   //Setting interval to refresh rich presence
   setInterval(checkPage, 2000);
 
-  checkUpdates();
+  //checkUpdates();
 
   //Exit the process after closing the electron window
   win.on('close', function() {
