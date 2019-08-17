@@ -1,7 +1,7 @@
 # discord-proxer
  Simple Discord integration for proxer.me inspired by [discord-netflix](https://github.com/nirewen/discord-netflix)
 
-# Features v1.0
+# Features v1.0.0
 This applications features rich presence for...
 - Anime
 - Seasonal Anime
