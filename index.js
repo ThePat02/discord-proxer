@@ -38,7 +38,7 @@ function main() {
     height: 600,
     icon: "assets/icon.png",
     webPreferences: {
-      nodeIntegration: true
+      nodeIntegration: false
     }
   })
 
