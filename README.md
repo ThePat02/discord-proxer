@@ -34,6 +34,8 @@ Note: This will build applications for every supported OS.
 
 A folder named `Proxer-win32-x64` will appear. In there you can find the application named `Proxer.exe`.
 
+Note: The master branch will not be buildalbe at all times. Use the version tags instead.
+
 # Contact
 If you have questions or ideas for the development you can contact me on Discord (`Pat
 #2883`) or make a pull request.
