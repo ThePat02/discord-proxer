@@ -1,7 +1,8 @@
 const {
   app,
   BrowserWindow,
-  Menu
+  Menu,
+  dialog
 } = require('electron');
 const client = require('discord-rich-presence')('611913662415896627');
 
@@ -9,7 +10,7 @@ const client = require('discord-rich-presence')('611913662415896627');
 const urls = ["https://proxer.me", "https://proxer.me/watch/4167/1/engsub"];
 //Setting URL
 var currentURL = urls[0];
-var changelogURL = "https://rawcdn.githack.com/ThePat02/discord-proxer/b5be615e00e60b5f95913294e07c88069e5905d9/changelog.txt";
+var versionJSONURL = "https://raw.githack.com/ThePat02/discord-proxer/master/version.json";
 
 
 const axios = require('axios');
@@ -19,16 +20,76 @@ let win;
 
 //Creating template for electron menu
 const template = [{
-  label: 'Navigation',
-  submenu: [{
+    label: 'Navigation',
+    submenu: [{
+        label: 'Open Proxer in browser',
+        click() {
+          var opn = require('opn');
+          opn(currentURL);
+        }
+      },
+      {
+        label: 'Open GitHub project',
+        click() {
+          var opn = require('opn');
+          opn("https://github.com/ThePat02/discord-proxer");
+        }
+      },
+      {
+        type: 'separator'
+      },
+      {
+        label: 'Version info',
+        click() {
+          var title = "discord-proxer " + versonInformation.version;
+          var detail = "Author: " + versonInformation.author;
+          const options = {
+            type: 'info',
+            buttons: ['Close'],
+            title: 'Version-Information',
+            message: title,
+            detail: detail,
+          };
+
+          dialog.showMessageBox(null, options, (response, checkboxChecked) => {});
+        }
+      },
+      {
+        label: 'Check for updates',
+        click() {
+          checkUpdates();
+        }
+      },
+      {
+        label: 'Exit',
+        click() {
+          app.quit();
+        }
+      }
+    ],
+  },
+  {
     label: 'Backwards',
     accelerator: 'CmdOrCtrl+B',
     click() {
-      console.log('<-')
       win.webContents.goBack();
     }
-  }]
-}];
+  },
+  {
+    label: 'Reload',
+    accelerator: 'CmdOrCtrl+R',
+    click() {
+      win.webContents.reload();
+    }
+  }
+];
+
+//Get versioninformations from JSON
+var fs = require("fs");
+// Get content from file
+var versioncontent = fs.readFileSync("version.json");
+// Define to JSON type
+var versonInformation = JSON.parse(versioncontent);
 
 //Main function (called on "ready")
 function main() {
@@ -59,7 +120,8 @@ function main() {
   //Setting interval to refresh rich presence
   setInterval(checkPage, 2000);
 
-  //checkUpdates();
+  //Checking for updates
+  checkUpdates();
 
   //Exit the process after closing the electron window
   win.on('close', function() {
@@ -178,46 +240,33 @@ function checkPage() {
 }
 
 //Called upon startup to check if the changelog.txt file on the repo has changed
-/*
 function checkUpdates() {
-  axios(changelogURL)
-    .then(response => {
-      const html = response.data;
-      const $ = cheerio.load(html)
-      const table = $('html');
-      const info = [];
+  var request = require('request');
+  request(versionJSONURL, function(error, response, body) {
+    if (!error && response.statusCode == 200) {
+      var importedJSON = JSON.parse(body);
+      if (importedJSON.version != versonInformation.version) {
+        var message = "Version v" + importedJSON.version + " is now online";
+        console.log(importedJSON);
+        const options = {
+          type: 'info',
+          buttons: ['Close', 'Update'],
+          title: 'Update discord-proxer',
+          message: message,
+          detail: importedJSON.updateinformation,
+        };
 
-      table.each(function() {
-        const content = $(this).text();
-
-      var fs = require('fs');
-      var data = "";
-
-      try {
-         data = fs.readFileSync('changelog.txt', 'utf8');
-        //console.log(data.toString());
-      } catch (e) {
-        console.log('Error:', e.stack);
+        dialog.showMessageBox(null, options, (response, checkboxChecked) => {
+          if (response == "1") {
+            var opn = require('opn');
+            opn("https://github.com/ThePat02/discord-proxer/releases");
+          }
+        });
       }
-
-      console.log(data.toString());
-      console.log(content.toString());
-
-      if (data != content)
-      {
-        console.log("New");
-      }
-
-          info.push({
-            content,
-          });
-      });
-
-
-    });
-
+    }
+  })
 }
 
-*/
+
 
 app.on('ready', main);
