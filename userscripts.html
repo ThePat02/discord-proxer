@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+  <meta charset="utf-8">
+  <title>Userscripts - Proxer.me</title>
+  <script>
+    window.nodeRequire = require;
+    delete window.require;
+    delete window.exports;
+    delete window.module;
+  </script>
+  <script type="text/javascript" src="jquery.js"></script>
+</head>
+<style media="screen">
+  body {
+      background-color: #4E4E4E;
+      color: #CCCCCC;
+      font-family: Arial;
+      font-size: 14px;
+    }
+    a {
+      color: #00FFFF;
+      text-decoration: none;
+    }
+  </style>
+
+<body>
+  <h1>Userscripts</h1>
+
+  <p>Paste all your userscripts here:</p>
+  <textarea rows="20" cols="100" id="scriptArea"></textarea><br>
+  <button type="button" onclick="saveScripts()">Save</button>
+  <a href="#" onclick="win_userscript.close()">Close</a>
+</body>
+<script type="text/javascript">
+  document.getElementById("scriptArea").value = "";
+
+  function saveScripts() {
+    console.log("owo");
+    console.log(document.getElementById("scriptArea").value)
+    const fs = require('fs');
+    fs.writeFile(process.env.USERPROFILE + "/Documents/discord-proxer/userscripts.txt", document.getElementById('scriptArea').value, function(err) {
+      if (err) {
+        return console.log(err);
+      }
+      console.log(document.getElementById("scriptArea").value)
+    });
+  }
+</script>
+
+</html>

@@ -20,7 +20,7 @@ let win;
 
 //Creating template for electron menu
 const template = [{
-    label: 'Navigation',
+    label: 'Proxer',
     submenu: [{
         label: 'Open Proxer in browser',
         click() {
@@ -33,6 +33,25 @@ const template = [{
         click() {
           var opn = require('opn');
           opn("https://github.com/ThePat02/discord-proxer");
+        }
+      },
+      {
+        type: 'separator'
+      },
+      {
+        label: 'Userscripts',
+        click() {
+
+          let win_userscript = new BrowserWindow({
+            width: 1000,
+            height: 800,
+            webPreferences: {
+              nodeIntegration: true
+            }
+          })
+          win_userscript.show()
+          win_userscript.setMenuBarVisibility(false)
+          win_userscript.loadURL("file:///" + __dirname + "/userscripts.html");
         }
       },
       {
@@ -93,6 +112,9 @@ var versonInformation = JSON.parse(versioncontent);
 
 //Main function (called on "ready")
 function main() {
+  //Init folders
+  firstStartUp();
+
   //Defining electron window
   win = new BrowserWindow({
     width: 800,
@@ -267,6 +289,15 @@ function checkUpdates() {
   })
 }
 
+//Things that only happen once
+function firstStartUp() {
+  var fs = require('fs');
+
+  var dir = process.env.USERPROFILE + "/Documents/discord-proxer";
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir);
+  }
+}
 
 
 app.on('ready', main);
