@@ -1,17 +1,12 @@
-const {
-  app,
-  BrowserWindow,
-  Menu,
-  dialog
-} = require('electron');
+const { app, BrowserWindow, Menu, dialog } = require('electron');
 const client = require('discord-rich-presence')('611913662415896627');
 
 //Base URL array
-const urls = ["https://proxer.me", "https://proxer.me/watch/4167/1/engsub"];
+const urls = ['https://proxer.me', 'https://proxer.me/watch/4167/1/engsub'];
 //Setting URL
 var currentURL = urls[0];
-var versionJSONURL = "https://raw.githack.com/ThePat02/discord-proxer/master/version.json";
-
+var versionJSONURL =
+  'https://raw.githack.com/ThePat02/discord-proxer/master/version.json';
 
 const axios = require('axios');
 const cheerio = require('cheerio');
@@ -19,49 +14,48 @@ const cheerio = require('cheerio');
 let win;
 
 //Creating template for electron menu
-const template = [{
+const template = [
+  {
     label: 'Proxer',
-    submenu: [{
+    submenu: [
+      {
         label: 'Open Proxer in browser',
         click() {
-          var opn = require('opn');
-          opn(currentURL);
-        }
+          openPage('proxer');
+        },
       },
       {
         label: 'Open GitHub project',
         click() {
-          var opn = require('opn');
-          opn("https://github.com/ThePat02/discord-proxer");
-        }
+          openPage('github');
+        },
       },
       {
-        type: 'separator'
+        type: 'separator',
       },
       {
         label: 'Userscripts',
         click() {
-
           let win_userscript = new BrowserWindow({
             width: 1000,
             height: 800,
             webPreferences: {
-              nodeIntegration: true
-            }
-          })
-          win_userscript.show()
-          win_userscript.setMenuBarVisibility(false)
-          win_userscript.loadURL("file:///" + __dirname + "/userscripts.html");
-        }
+              nodeIntegration: true,
+            },
+          });
+          win_userscript.show();
+          win_userscript.setMenuBarVisibility(false);
+          win_userscript.loadURL('file:///' + __dirname + '/userscripts.html');
+        },
       },
       {
-        type: 'separator'
+        type: 'separator',
       },
       {
         label: 'Version info',
         click() {
-          var title = "discord-proxer " + versonInformation.version;
-          var detail = "Author: " + versonInformation.author;
+          const title = 'discord-proxer ' + versioncontent.version;
+          const detail = 'Author: ' + versioncontent.author;
           const options = {
             type: 'info',
             buttons: ['Close'],
@@ -70,21 +64,25 @@ const template = [{
             detail: detail,
           };
 
-          dialog.showMessageBox(null, options, (response, checkboxChecked) => {});
-        }
+          dialog.showMessageBox(
+            null,
+            options,
+            (response, checkboxChecked) => {},
+          );
+        },
       },
       {
         label: 'Check for updates',
         click() {
           checkUpdates();
-        }
+        },
       },
       {
         label: 'Exit',
         click() {
           app.quit();
-        }
-      }
+        },
+      },
     ],
   },
   {
@@ -92,23 +90,19 @@ const template = [{
     accelerator: 'CmdOrCtrl+B',
     click() {
       win.webContents.goBack();
-    }
+    },
   },
   {
     label: 'Reload',
     accelerator: 'CmdOrCtrl+R',
     click() {
       win.webContents.reload();
-    }
-  }
+    },
+  },
 ];
 
-//Get versioninformations from JSON
-var fs = require("fs");
 // Get content from file
-var versioncontent = fs.readFileSync("version.json");
-// Define to JSON type
-var versonInformation = JSON.parse(versioncontent);
+const versioncontent = require('./version.json');
 
 //Main function (called on "ready")
 function main() {
@@ -119,11 +113,11 @@ function main() {
   win = new BrowserWindow({
     width: 800,
     height: 600,
-    icon: "assets/icon.png",
+    icon: 'assets/icon.png',
     webPreferences: {
-      nodeIntegration: false
-    }
-  })
+      nodeIntegration: false,
+    },
+  });
 
   let contents = win.webContents;
 
@@ -147,117 +141,49 @@ function main() {
 
   //Exit the process after closing the electron window
   win.on('close', function() {
-    process.exit()
+    process.exit();
   });
 }
 
 //Called every X seconds to check if the page has changed
 function checkPage() {
+  let newURL = win.webContents.getURL();
 
-  var newURL = win.webContents.getURL();
-
-  if (currentURL == newURL) {
-    //literally nothing happens
-  } else {
+  if (currentURL !== newURL) {
     currentURL = newURL;
     win.setMenuBarVisibility(true);
 
-    client.updatePresence({
+    let presenceObj = {
       state: 'Browsing Proxer.me',
       details: 'Idle',
       largeImageKey: 'logo',
       instance: true,
       fullscreen: true,
       autoHideMenuBar: true,
+    };
+
+    currentURL.includes('chat')
+      ? (presenceObj.details = 'Chatting')
+      : currentURL.includes('forum')
+      ? (presenceObj.details = 'Checking the forum')
+      : currentURL.includes('airing')
+      ? (presenceObj.details = 'Checking seasonal Anime')
+      : currentURL.includes('gallery')
+      ? (presenceObj.details = 'Checking the gallery')
+      : currentURL.includes('news')
+      ? (presenceObj.details = 'Checking the news')
+      : '';
+
+    client.updatePresence({
+      state: presenceObj.state,
+      details: presenceObj.details,
+      largeImageKey: presenceObj.largeImageKey,
+      instance: presenceObj.instance,
     });
 
-    if (currentURL.includes("watch") == true) {
-      axios(currentURL)
-        .then(response => {
-          win.setMenuBarVisibility(false);
-          const html = response.data;
-          const $ = cheerio.load(html)
-          const table = $('body');
-          const animeInfo = [];
-
-          table.each(function() {
-            const name = $(this).find('.wName').text();
-            const episode = $("#wContainer").find('.wEp').text();
-            const lang = $(this).find('.wLanguage').text();
-
-            animeInfo.push({
-              name,
-              episode,
-              lang
-            });
-          });
-
-          console.log(animeInfo);
-          animeInfoString = JSON.stringify(animeInfo);
-          animeInfoString = animeInfoString.substring(1, animeInfoString.length - 1);
-          var anime = JSON.parse(animeInfoString);
-
-          var detail_string = "Watching " + anime.name;
-          var state_string = "Episode " + anime.episode + " (" + anime.lang + ")";
-
-          client.updatePresence({
-            state: state_string,
-            details: detail_string,
-            largeImageKey: 'logo',
-            largeImageText: "proxer.me",
-            instance: true,
-          });
-        })
-        .catch(console.error);
-
+    if (currentURL.includes('watch')) {
+      setWatching(currentURL, presenceObj);
     }
-
-    if (currentURL.includes("chat") == true) {
-      client.updatePresence({
-        state: 'Browsing Proxer.me',
-        details: 'Chatting',
-        largeImageKey: 'logo',
-        instance: true,
-      });
-    }
-
-    if (currentURL.includes("forum") == true) {
-      client.updatePresence({
-        state: 'Browsing Proxer.me',
-        details: 'Checking the forum',
-        largeImageKey: 'logo',
-        instance: true,
-      });
-    }
-
-    if (currentURL.includes("airing") == true) {
-      client.updatePresence({
-        state: 'Browsing Proxer.me',
-        details: 'Checking seasonal Anime',
-        largeImageKey: 'logo',
-        instance: true,
-      });
-    }
-
-    if (currentURL.includes("gallery") == true) {
-      client.updatePresence({
-        state: 'Browsing Proxer.me',
-        details: 'Checking the gallery',
-        largeImageKey: 'logo',
-        instance: true,
-      });
-    }
-
-    if (currentURL.includes("news") == true) {
-      client.updatePresence({
-        state: 'Browsing Proxer.me',
-        details: 'Checking the news',
-        largeImageKey: 'logo',
-        instance: true,
-      });
-    }
-
-
   }
 }
 
@@ -267,8 +193,8 @@ function checkUpdates() {
   request(versionJSONURL, function(error, response, body) {
     if (!error && response.statusCode == 200) {
       var importedJSON = JSON.parse(body);
-      if (importedJSON.version != versonInformation.version) {
-        var message = "Version v" + importedJSON.version + " is now online";
+      if (importedJSON.version != versioncontent.version) {
+        var message = 'Version v' + importedJSON.version + ' is now online';
         console.log(importedJSON);
         const options = {
           type: 'info',
@@ -279,25 +205,78 @@ function checkUpdates() {
         };
 
         dialog.showMessageBox(null, options, (response, checkboxChecked) => {
-          if (response == "1") {
+          if (response == '1') {
             var opn = require('opn');
-            opn("https://github.com/ThePat02/discord-proxer/releases");
+            opn('https://github.com/ThePat02/discord-proxer/releases');
           }
         });
       }
     }
-  })
+  });
 }
+
+function setWatching(currentURL, oldObj) {
+  axios(currentURL)
+    .then(response => {
+      win.setMenuBarVisibility(false);
+      const html = response.data;
+      const $ = cheerio.load(html);
+      let animeInfo = {};
+
+      const name = $('#wContainer')
+        .find('.wName')
+        .text();
+      const episode = $('#wContainer')
+        .find('.wEp')
+        .text();
+      const lang = $('#wContainer')
+        .find('.wLanguage')
+        .text();
+
+      animeInfo = {
+        name: name,
+        episode: episode,
+        lang: lang,
+      };
+
+      console.log(animeInfo);
+
+      client.updatePresence({
+        state: `Watching ${animeInfo.name}`,
+        details: `Episode ${animeInfo.episode} ( ${animeInfo.lang} )`,
+        largeImageKey: oldObj.largeImageKey,
+        instance: oldObj.instance,
+      });
+    })
+    .catch(console.error);
+}
+
+let openPage = async site => {
+  let url = '';
+
+  switch (site) {
+    case 'github':
+      url = 'https://github.com/ThePat02/discord-proxer';
+      break;
+    case 'proxer':
+      url = 'https://proxer.me';
+      break;
+  }
+
+  if (url != '') {
+    let opn = await require('opn');
+    opn(url);
+  }
+};
 
 //Things that only happen once
 function firstStartUp() {
-  var fs = require('fs');
+  const fs = require('fs');
 
-  var dir = process.env.USERPROFILE + "/Documents/discord-proxer";
+  let dir = process.env.USERPROFILE + '/Documents/discord-proxer';
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir);
   }
 }
-
 
 app.on('ready', main);
